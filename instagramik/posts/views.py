@@ -1,6 +1,6 @@
 from django.db.models import Count
-from django.http import HttpResponse
-from django.shortcuts import render
+from django.http import HttpResponse, Http404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
 
 from .models import Post
@@ -12,7 +12,8 @@ def index(request):
     context = {
         'posts': post_query,
     }
-    return HttpResponse(template.render(context))
+    # return HttpResponse(template.render(context))
+    return render(request, 'posts/index.html', context)
 
 
 def feed(request):
@@ -27,8 +28,11 @@ def feed(request):
 
 
 def post_detail(request, post_id):
-    response = "Post #{}".format(post_id)
-    return HttpResponse(response)
+    post = get_object_or_404(Post, pk=post_id)
+    context = {
+        'post': post,
+    }
+    return render(request, 'posts/post_detail.html', context)
 
 
 def post_create(request):
@@ -47,5 +51,12 @@ def post_delete(request, post_id):
 
 
 def post_like(request, post_id):
-    response = "Post like #{}".format(post_id)
-    return HttpResponse(response)
+    post = get_object_or_404(Post, pk=post_id)
+    if request.user and request.user.is_authenticated:
+        if request.user in post.likes.all():
+            like = post.likes.get(pk=request.user.id)
+            post.likes.remove(like)
+        else:
+            post.likes.add(request.user)
+            post.save()
+    return redirect(request.META.get('HTTP_REFERER'), request)

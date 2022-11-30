@@ -2,6 +2,8 @@ from django.urls import path, re_path
 from . import views
 
 
+app_name = 'posts'
+
 urlpatterns = [
     re_path(r'^$', views.index, name="index"),
     re_path(r'^posts/(?P<post_id>\w+)/$', views.post_detail, name="post_detail"),

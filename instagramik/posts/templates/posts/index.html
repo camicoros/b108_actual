@@ -9,9 +9,16 @@
 <ul>
     {% for post in posts %}
     <li>
-        <p>{{ post }}</p>
+        <a href="{% url 'posts:post_detail' post.id %}">{{ post }}</a>
         <p>Author: {{ post.author }}</p>
+        <p>Likes: {{ post.likes.count }}</p>
+        <p>Dislikes: {{ post.dislikes.count }}</p>
+        <form method="post" action="{% url 'posts:post_like' post.id %}">
+            {% csrf_token %}
+            <button type="submit">Like ♥</button>
+        </form>
         <img src="{{ post.image_url }}">
+
     </li>
     {% endfor %}
 </ul>

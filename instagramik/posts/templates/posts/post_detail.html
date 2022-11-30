@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <p>{{ post }}</p>
+    <p>Author: {{ post.author }}</p>
+    <p>Likes: {{ post.likes.count }}</p>
+    <form method="post" action="{% url 'posts:post_like' post.id %}">
+        {% csrf_token %}
+        <button type="submit">Like ♥</button>
+    </form>
+    <img src="{{ post.image_url }}">
+</body>
+</html>

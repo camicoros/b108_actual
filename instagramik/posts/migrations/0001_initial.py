@@ -6,6 +6,11 @@ import django.db.models.deletion
 import posts.models
 
 
+def post_image_path(instance, filename):
+    user_id = instance.id
+    return "posts/user-{}/{}".format(user_id, filename)
+
+
 class Migration(migrations.Migration):
 
     initial = True
@@ -20,7 +25,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('description', models.TextField(blank=True, max_length=1000)),
-                ('image', models.ImageField(upload_to=posts.models.post_image_path)),
+                ('image', models.ImageField(upload_to=post_image_path)),
                 ('date_pub', models.DateTimeField(auto_now_add=True)),
                 ('date_edit', models.DateTimeField(auto_now=True)),
                 ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='posts', to=settings.AUTH_USER_MODEL)),
