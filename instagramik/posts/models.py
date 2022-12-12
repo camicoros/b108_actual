@@ -1,3 +1,4 @@
+from django.core.validators import FileExtensionValidator
 from django.db import models
 from core.models import CustomUser
 
@@ -17,7 +18,7 @@ class Category(models.Model):
 class Post(models.Model):
     author = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='posts')
     description = models.TextField(max_length=1000, blank=True)
-    image = models.ImageField(upload_to=post_image_path, blank=True)
+    image = models.ImageField(upload_to='posts', blank=True, validators=[FileExtensionValidator(['jpeg', 'jpg', 'png'])])
     date_pub = models.DateTimeField(auto_now_add=True)
     date_edit = models.DateTimeField(auto_now=True)
     likes = models.ManyToManyField(CustomUser, related_name='users_like_it', blank=True)

@@ -1,6 +1,7 @@
 from django import forms
+from django.core.exceptions import ValidationError
 
-from .models import Post
+from .models import Post, Comment
 
 
 class PostCreateForm(forms.ModelForm):
@@ -27,3 +28,26 @@ class PostCreateForm(forms.ModelForm):
             )
         }
 
+    def clean_description(self):
+        description = self.cleaned_data.get('description')
+        if not description:
+            raise ValidationError("no description :(")
+        return description
+
+    def clean_image(self):
+        AVAILABLE_EXTENSIONS = ['jpeg', 'jpg', 'png', 'gif']
+        image = self.cleaned_data.get('image')
+        if image:
+            extension = str(image.name).rsplit('.', 1)[-1]
+            if not extension in AVAILABLE_EXTENSIONS:
+                raise ValidationError('wrong extension! >.<"')
+        return image
+
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['text']
+        widgets = {
+            'text': forms.Textarea(attrs={'class': 'form-control', 'placeholder': "Текст комментария"})
+        }

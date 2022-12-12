@@ -6,10 +6,10 @@ from django.template import loader
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
-from django.views.generic import ListView
+from django.views.generic import ListView, DeleteView, UpdateView, DetailView
 
-from .forms import PostCreateForm
-from .models import Post
+from .forms import PostCreateForm, CommentForm
+from .models import Post, Comment
 
 
 class IndexView(ListView):
@@ -65,12 +65,26 @@ class FeedView(ListView):
 #     return HttpResponse(output)
 
 
-def post_detail(request, post_id):
-    post = get_object_or_404(Post, pk=post_id)
-    context = {
-        'post': post,
-    }
-    return render(request, 'posts/post_detail.html', context)
+class PostDetail(DetailView):
+    model = Post
+    comment_form = CommentForm
+    pk_url_kwarg = 'post_id'
+    template_name = 'posts/post_detail.html'
+
+    def get(self, request, post_id, *args, **kwargs):
+        self.object = self.get_object()
+        context = self.get_context_data(object=self.object)
+        context['comments'] = Comment.objects.filter(post__pk=post_id).order_by('-date_pub')
+        return self.render_to_response(context)
+
+
+
+# def post_detail(request, post_id):
+#     post = get_object_or_404(Post, pk=post_id)
+#     context = {
+#         'post': post,
+#     }
+#     return render(request, 'posts/post_detail.html', context)
 
 
 @login_required()
@@ -92,15 +106,42 @@ def post_create(request):
             return render(request, template_name, context)
 
 
+class EditPostView(UpdateView):
+    model = Post
+    pk_url_kwarg = 'post_id'
+    template_name = 'posts/post_edit.html'
+    form_class = PostCreateForm
 
-def post_edit(request, post_id):
-    response = "Post edit #{}".format(post_id)
-    return HttpResponse(response)
+    def dispatch(self, request, *args, **kwargs):
+        obj = self.get_object()
+        print(self.request.__dict__)
+        if obj.author != self.request.user:
+            raise Exception("You are not allowed!")
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        post_id = self.kwargs['post_id']
+        return reverse('posts:post_detail', args=(post_id, ))
 
 
-def post_delete(request, post_id):
-    response = "Post delete #{}".format(post_id)
-    return HttpResponse(response)
+# def post_edit(request, post_id):
+#     response = "Post edit #{}".format(post_id)
+#     return HttpResponse(response)
+
+
+class DeletePostView(DeleteView):
+    model = Post
+    pk_url_kwarg = 'post_id'
+    template_name = 'posts/post_delete.html'
+
+    def get_success_url(self):
+        post_id = self.kwargs['post_id']
+        return reverse('posts:delete-post-success', args=(post_id, ))
+
+
+# def post_delete(request, post_id):
+#     response = "Post delete #{}".format(post_id)
+#     return HttpResponse(response)
 
 
 def post_like(request, post_id):
