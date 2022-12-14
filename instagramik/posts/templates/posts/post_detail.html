@@ -5,7 +5,7 @@
     <title>Title</title>
 </head>
 <body>
-    <p>{{ post }}</p>
+    <H1>{{ post }}</H1>
     <p>Author: {{ post.author }}</p>
     <p>Likes: {{ post.likes.count }}</p>
     <form method="post" action="{% url 'posts:post_like' post.id %}">
@@ -14,8 +14,21 @@
     </form>
     <img src="{{ post.image_url }}">
 
+    {% if comments %}
+    <h2>Comments:</h2>
     {% for comment in comments %}
-        <p>{{ comment }}</p>
+        <p>{{ comment.author }}</p>
+        <p>{{ comment.date_pub }}</p>
+        <p>{{ comment.text }}</p>
     {% endfor %}
+    {% else %}
+    <h2>No comments yet. Be first!</h2>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        {{ comment_form.as_p }}
+        <button type="submit">Добавить комментарий</button>
+    </form>
 </body>
 </html>

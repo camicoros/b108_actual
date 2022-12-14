@@ -17,7 +17,7 @@ class Category(models.Model):
 
 class Post(models.Model):
     author = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='posts')
-    description = models.TextField(max_length=1000, blank=True)
+    description = models.TextField(max_length=1000)
     image = models.ImageField(upload_to='posts', blank=True, validators=[FileExtensionValidator(['jpeg', 'jpg', 'png'])])
     date_pub = models.DateTimeField(auto_now_add=True)
     date_edit = models.DateTimeField(auto_now=True)

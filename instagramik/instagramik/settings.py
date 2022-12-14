@@ -42,6 +42,7 @@ INSTALLED_APPS = [
 ]
 
 AUTH_USER_MODEL = 'core.CustomUser'
+LOGIN_REDIRECT_URL = 'posts:index'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

@@ -74,7 +74,24 @@ class PostDetail(DetailView):
     def get(self, request, post_id, *args, **kwargs):
         self.object = self.get_object()
         context = self.get_context_data(object=self.object)
-        context['comments'] = Comment.objects.filter(post__pk=post_id).order_by('-date_pub')
+        context['comments'] = Comment.objects.filter(post__pk=post_id).order_by('-date_pub')[:5]
+        context['comment_form'] = self.comment_form
+        return self.render_to_response(context)
+
+    def post(self, request, post_id, *args, **kwargs):
+        self.object = self.get_object()
+        form = self.comment_form(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.author = request.user
+            comment.post = self.object
+            comment.save()
+
+        context = self.get_context_data(object=self.object)
+        context.update({
+            'comments': Comment.objects.filter(post__pk=post_id).order_by('-date_pub')[:5],
+            'comment_form': self.comment_form,
+        })
         return self.render_to_response(context)
 
 
