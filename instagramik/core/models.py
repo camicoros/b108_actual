@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.urls import reverse
 
 
 def user_avatar_path(instance, filename):
@@ -12,3 +13,6 @@ class CustomUser(AbstractUser):
     about = models.TextField(max_length=500, blank=True)
     avatar = models.ImageField(upload_to=user_avatar_path)
     friends = models.ManyToManyField('self', blank=True)
+
+    def get_absolute_url(self):
+        return reverse('core:profile', kwargs={'user_id': self.pk})

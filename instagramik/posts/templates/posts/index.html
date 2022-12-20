@@ -10,7 +10,7 @@
     {% for post in posts %}
     <li>
         <a href="{% url 'posts:post_detail' post.id %}">{{ post }}</a>
-        <p>Author: {{ post.author }}</p>
+        <p>Author: <a href="{% url 'core:profile' post.author.id %}">{{ post.author }}</a></p>
         <p>Likes: {{ post.likes.count }}</p>
         <p>Dislikes: {{ post.dislikes.count }}</p>
         <form method="post" action="{% url 'posts:post_like' post.id %}">

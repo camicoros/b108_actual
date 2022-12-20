@@ -1,10 +1,36 @@
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.views import LoginView
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
+from django.urls import reverse
 from django.views import View
-from django.views.generic import DetailView
+from django.views.generic import DetailView, UpdateView
 
+from .forms import UpdateProfileForm, SignupForm
 from .models import CustomUser
+
+
+class SignupView(View):
+    template_name = 'core/signup.html'
+    form = SignupForm
+
+    def get(self, request, *args, **kwargs):
+        context = {
+            'form': self.form,
+        }
+        return render(request, self.template_name, context)
+
+    def post(self, request, *args, **kwargs):
+        form = SignupForm(request.POST, request.FILES)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect(reverse('core:profile', kwargs={'user_id': user.id}))
+        else:
+            return render(request, self.template_name, {
+                'form': form,
+            })
+
 
 
 class ProfileView(DetailView):
@@ -12,6 +38,20 @@ class ProfileView(DetailView):
     template_name = 'core/profile.html'
     pk_url_kwarg = 'user_id'
     context_object_name = 'profile'
+
+
+class ProfileEditView(UpdateView):
+    model = CustomUser
+    template_name = 'core/edit_profile.html'
+    pk_url_kwarg = 'user_id'
+    context_object_name = 'profile'
+    form_class = UpdateProfileForm
+
+    def dispatch(self, request, *args, **kwargs):
+        obj = self.get_object()
+        if obj != request.user:
+            raise Http404('Вам сюда нельзя! это не ваш профиль! Уходите! >:С')
+        return super().dispatch(request, *args, **kwargs)
 
 
 class AddRemoveFriend(View):

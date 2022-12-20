@@ -1,6 +1,7 @@
 from django.core.validators import FileExtensionValidator
 from django.db import models
 from core.models import CustomUser
+from django.urls import reverse
 
 
 def post_image_path(instance, filename):
@@ -24,6 +25,9 @@ class Post(models.Model):
     likes = models.ManyToManyField(CustomUser, related_name='users_like_it', blank=True)
     dislikes = models.ManyToManyField(CustomUser, related_name='users_dislike_it', blank=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
+
+    def get_absolute_url(self):
+        return reverse('posts:post_detail', kwargs={'post_id': self.pk})
 
     @property
     def image_url(self):
