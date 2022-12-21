@@ -1,10 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Редактирование профиля {{ profile }}</title>
-</head>
-<body>
+{% extends 'posts/base.html' %}
+
+{% block title %}
+    Редактирование профиля {{ profile }}
+{% endblock title %}
+
+
+{% block content %}
     <h1>Редактирование профиля {{profile}}</h1>
     <img src="{{profile.avatar.url}}" alt="avatar">
 
@@ -15,19 +16,9 @@
     </form>
 
     <h2>Posts:</h2>
-    <ul>
-        {% for post in profile.posts.all %}
-            <li>
-                <a href="{% url 'posts:post_detail' post.id %}">{{ post }}</a>
-                <p>Likes: {{ post.likes.count }}</p>
-                <p>Dislikes: {{ post.dislikes.count }}</p>
-                <form method="post" action="{% url 'posts:post_like' post.id %}">
-                    {% csrf_token %}
-                    <button type="submit">Like ♥</button>
-                </form>
-                <img src="{{ post.image_url }}">
-            </li>
-        {% endfor %}
-    </ul>
-</body>
-</html>
+
+{% with posts=profile.posts.all %}
+    {% include 'posts/post_list.html' %}
+{% endwith %}
+
+{% endblock content %}
